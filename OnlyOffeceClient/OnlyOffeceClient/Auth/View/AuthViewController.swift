@@ -36,6 +36,7 @@ class AuthViewController: UIViewController {
         btn.backgroundColor = .systemBlue
         btn.heightAnchor.constraint(equalToConstant: 40).isActive = true
         btn.layer.cornerRadius = 4
+        btn.titleEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
         return btn
     }()
     
