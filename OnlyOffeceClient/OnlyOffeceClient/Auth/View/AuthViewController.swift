@@ -20,13 +20,13 @@ class AuthViewController: UIViewController {
     }()
     
     private lazy var portalInputLabel = labelBuilder(text: "Portal")
-    private lazy var portalInput = inputBuilder(placeholder: "personal.onlyoffice.com", contentType: .URL)
+    private lazy var portalInput = inputBuilder(placeholder: "personal.onlyoffice.com", contentType: .URL, keyboardType: .URL)
     
     private lazy var emailInputLabel = labelBuilder(text: "Email")
-    private lazy var emailInput = inputBuilder(placeholder: "user@email.com", contentType: .emailAddress)
+    private lazy var emailInput = inputBuilder(placeholder: "user@email.com", contentType: .emailAddress, keyboardType: .emailAddress)
     
     private lazy var passwordInputLabel = labelBuilder(text: "Password")
-    private lazy var passwordInput = inputBuilder(placeholder: "Your password", contentType: .emailAddress)
+    private lazy var passwordInput = inputBuilder(placeholder: "Your password", contentType: .password)
     
     private lazy var loginButton: UIButton = {
         let btn = UIButton(type: .system)
@@ -83,7 +83,7 @@ class AuthViewController: UIViewController {
         let userInfo = sender.userInfo
         
         let keyboardSize = (userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
-        let bottomFreeSpace = (UIScreen.main.bounds.height - generalStackView.frame.height) / 2 - 20
+        let bottomFreeSpace = (UIScreen.main.bounds.height - view.safeAreaInsets.top - generalStackView.frame.height) / 2  - 20
         
         guard let keyboardSizeUnwraped = keyboardSize, keyboardSizeUnwraped.height > bottomFreeSpace else {
             return
@@ -104,11 +104,13 @@ class AuthViewController: UIViewController {
         return label
     }
     
-    private func inputBuilder(placeholder: String, contentType: UITextContentType) -> UITextField {
+    private func inputBuilder(placeholder: String, contentType: UITextContentType, keyboardType: UIKeyboardType = .default) -> UITextField {
         let textField = UITextField()
         textField.translatesAutoresizingMaskIntoConstraints = true
         textField.placeholder = NSLocalizedString(placeholder, comment: "")
         textField.textContentType = contentType
+        textField.isSecureTextEntry = contentType == .password
+        textField.keyboardType = keyboardType
         textField.layer.borderWidth = 1
         textField.layer.borderColor = UIColor.lightGray.cgColor
         textField.layer.cornerRadius = 4
@@ -144,16 +146,16 @@ class AuthViewController: UIViewController {
         scrollView.addSubview(generalStackView)
         
         NSLayoutConstraint.activate([
-            generalStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: leftMargin),
-            generalStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -rightMargin),
+            generalStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: leftMargin),
+            generalStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -rightMargin),
             generalStackView.centerYAnchor.constraint(equalTo: scrollView.centerYAnchor)
         ])
         
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor)
         ])
     }
 }
