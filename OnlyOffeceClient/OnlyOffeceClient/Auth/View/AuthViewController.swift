@@ -39,6 +39,9 @@ class AuthViewController: UIViewController {
         return btn
     }()
     
+    private let scrollView = UIScrollView()
+    private let generalStackView = UIStackView()
+    
     // MARK: - sizes fields
     private let leftMargin: CGFloat
     private let rightMargin: CGFloat
@@ -53,7 +56,7 @@ class AuthViewController: UIViewController {
         self.leftMargin = leftMargin
         self.rightMargin = rightMargin
         self.groupStacksSpacing = groupStacksSpacing
-
+        
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -64,7 +67,33 @@ class AuthViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(sender:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(sender:)), name: UIResponder.keyboardWillHideNotification, object: nil)
         setupConstraints()
+    }
+    
+    // MARK: - Deinit
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    // MARK: - Keyboard handlers
+    @objc func keyboardWillShow(sender: NSNotification) {
+        let userInfo = sender.userInfo
+        
+        let keyboardSize = (userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
+        let bottomFreeSpace = (UIScreen.main.bounds.height - generalStackView.frame.height) / 2 - 20
+        
+        guard let keyboardSizeUnwraped = keyboardSize, keyboardSizeUnwraped.height > bottomFreeSpace else {
+            return
+        }
+        
+        scrollView.contentOffset = CGPoint(x: 0, y: keyboardSizeUnwraped.height - bottomFreeSpace)
+    }
+    
+    @objc func keyboardWillHide(sender: NSNotification) {
+        scrollView.contentOffset = CGPoint.zero
     }
     
     // MARK: - Interface element builders
@@ -77,7 +106,7 @@ class AuthViewController: UIViewController {
     
     private func inputBuilder(placeholder: String, contentType: UITextContentType) -> UITextField {
         let textField = UITextField()
-        textField.translatesAutoresizingMaskIntoConstraints = false
+        textField.translatesAutoresizingMaskIntoConstraints = true
         textField.placeholder = NSLocalizedString(placeholder, comment: "")
         textField.textContentType = contentType
         textField.layer.borderWidth = 1
@@ -93,6 +122,8 @@ class AuthViewController: UIViewController {
     // MARK: - Set constraints
     private func setupConstraints() {
         view.backgroundColor = .white
+        scrollView.frame = view.frame
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
         
         let welcomeStackView = UIStackView(arrangedSubviews: [welocomeLabel, titleLabel], axis: .vertical, spacing: 10)
         
@@ -102,15 +133,27 @@ class AuthViewController: UIViewController {
         
         let inputStackView = UIStackView(arrangedSubviews: [portalStackView, emailStackView, passwordStackView], axis: .vertical, spacing: 15)
         
-        let generalStackView = UIStackView(arrangedSubviews: [welcomeStackView, inputStackView, loginButton], axis: .vertical, spacing: groupStacksSpacing)
+        generalStackView.addArrangedSubview(welcomeStackView)
+        generalStackView.addArrangedSubview(inputStackView)
+        generalStackView.addArrangedSubview(loginButton)
+        generalStackView.axis = .vertical
+        generalStackView.spacing = groupStacksSpacing
         generalStackView.translatesAutoresizingMaskIntoConstraints = false
         
-        view.addSubview(generalStackView)
+        view.addSubview(scrollView)
+        scrollView.addSubview(generalStackView)
         
         NSLayoutConstraint.activate([
             generalStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: leftMargin),
             generalStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -rightMargin),
-            generalStackView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            generalStackView.centerYAnchor.constraint(equalTo: scrollView.centerYAnchor)
+        ])
+        
+        NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
     }
 }
