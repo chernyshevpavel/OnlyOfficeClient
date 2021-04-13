@@ -13,10 +13,13 @@ class AuthorizationTest: XCTestCase {
     
     var userName = ""
     var password = ""
+    var portalAddressStorage: PortalAdressStorage = PortalAddresStorageMock(url: "https://pavelchernyshev.onlyoffice.eu")
+    var tokenStorage: TokenStorage = TokenStorageMock()
     
     
     override func setUpWithError() throws {
         let defaults = UserDefaults.standard
+        // MARK: - fill it for run tests
         // set your userName for tests defaults.set("", forKey: "userName")
         // set your userName for tests defaults.set("", forKey: "password")
         userName = defaults.string(forKey: "userName") ?? ""
@@ -28,9 +31,8 @@ class AuthorizationTest: XCTestCase {
         password = ""
     }
     
-    //
     func testGetToken() throws {
-        let requestFactory = RequestFactory(baseUrlStr: "https://pavelchernyshev.onlyoffice.eu")
+        let requestFactory = RequestFactory(portalAdressStorage: portalAddressStorage, tokenStorage: tokenStorage)
         let expect = expectation(description: "Get token")
         let errorParser = ErrorParserState<BaseErrorResponse>()
         let auth = requestFactory.makeAuthRequestFactory(errorParser: errorParser)
@@ -43,6 +45,9 @@ class AuthorizationTest: XCTestCase {
                 XCTAssertFalse(getTokenResult.response.token.isEmpty)
                 expect.fulfill()
             case .failure(let error):
+                if let parsedError = error.underlyingError as? BaseErrorResponse {
+                    XCTFail(parsedError.getErrorDescription() ?? "")
+                }
                 XCTFail(error.localizedDescription)
             }
         }
@@ -51,7 +56,7 @@ class AuthorizationTest: XCTestCase {
     
     
     func testGetTokenFailPasswordExpect() throws {
-        let requestFactory = RequestFactory(baseUrlStr: "https://pavelchernyshev.onlyoffice.eu")
+        let requestFactory = RequestFactory(portalAdressStorage: portalAddressStorage, tokenStorage: tokenStorage)
         let expect = expectation(description: "Get token")
         let errorParser = ErrorParserState<BaseErrorResponse>()
         let auth = requestFactory.makeAuthRequestFactory(errorParser: errorParser)
@@ -71,8 +76,30 @@ class AuthorizationTest: XCTestCase {
         waitForExpectations(timeout: 10)
     }
     
+    func testGetTokenFailLoginExpect() throws {
+        let requestFactory = RequestFactory(portalAdressStorage: portalAddressStorage, tokenStorage: tokenStorage)
+        let expect = expectation(description: "Get token")
+        let errorParser = ErrorParserState<BaseErrorResponse>()
+        let auth = requestFactory.makeAuthRequestFactory(errorParser: errorParser)
+        auth.getToken(email: "wronglogin", password: password) { response in
+            switch response.result {
+            case .success:
+                XCTFail("Expected auth error")
+            case .failure(let error):
+                if let parsedError = error.underlyingError as? BaseErrorResponse {
+                    XCTAssertFalse(parsedError.error.message.isEmpty)
+                    expect.fulfill()
+                } else {
+                    XCTFail(error.localizedDescription)
+                }
+            }
+        }
+        waitForExpectations(timeout: 10)
+    }
+    
     func testGetTokenFailUrlExpect() throws {
-        let requestFactory = RequestFactory(baseUrlStr: "https://fail.onlyoffice.eu")
+        let portalAddressStorage = PortalAddresStorageMock(url: "https://fail.onlyoffice.eu")
+        let requestFactory = RequestFactory(portalAdressStorage: portalAddressStorage, tokenStorage: tokenStorage)
         let expect = expectation(description: "Get token")
         let parser = ErrorParsersChain(errorParsers: [ErrorParserState<BaseErrorResponse>(), ErrorStatusParser()])
         let auth = requestFactory.makeAuthRequestFactory(errorParser: parser)

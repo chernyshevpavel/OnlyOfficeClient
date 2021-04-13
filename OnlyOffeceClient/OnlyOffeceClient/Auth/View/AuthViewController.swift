@@ -10,12 +10,14 @@ import Combine
 
 class AuthViewController: UIViewController {
     
+    let viewModel: AuthViewModelType
+    let succesAuthViewController: UIViewController
+    
     // MARK: - View elements
     private lazy var welocomeLabel = labelBuilder(text: "Welcom back")
     private lazy var titleLabel: UILabel = {
         let label = labelBuilder(text: "Login to ONLYOFFICE")
         label.font = UIFont.boldSystemFont(ofSize: 26)
-        
         return label
     }()
     
@@ -34,14 +36,24 @@ class AuthViewController: UIViewController {
         btn.setTitle(NSLocalizedString("Login now", comment: ""), for: .normal)
         btn.setTitleColor(.white, for: .normal)
         btn.backgroundColor = .systemBlue
-        btn.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        btn.heightAnchor.constraint(equalToConstant: 50).isActive = true
         btn.layer.cornerRadius = 4
         btn.titleEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
+        btn.addTarget(self, action: #selector(loginAction(selector:)), for: .touchUpInside)
         return btn
+    }()
+    
+    private lazy var activityIndicator: UIActivityIndicatorView = {
+        let activityIndicator = UIActivityIndicatorView()
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        return activityIndicator
     }()
     
     private let scrollView = UIScrollView()
     private let generalStackView = UIStackView()
+    
+    private let baseInputColor = UIColor.lightGray.cgColor
+    private let errorInputColor = UIColor.systemRed.cgColor
     
     // MARK: - sizes fields
     private let leftMargin: CGFloat
@@ -50,10 +62,14 @@ class AuthViewController: UIViewController {
     
     // MARK: - init
     init(
+        viewModel: AuthViewModelType,
+        succesAuthViewController: UIViewController,
         leftMargin: CGFloat = 20,
         rightMargin: CGFloat = 20,
         groupStacksSpacing: CGFloat = 40
     ) {
+        self.viewModel = viewModel
+        self.succesAuthViewController = succesAuthViewController
         self.leftMargin = leftMargin
         self.rightMargin = rightMargin
         self.groupStacksSpacing = groupStacksSpacing
@@ -109,11 +125,12 @@ class AuthViewController: UIViewController {
         let textField = UITextField()
         textField.translatesAutoresizingMaskIntoConstraints = true
         textField.placeholder = NSLocalizedString(placeholder, comment: "")
+        textField.autocapitalizationType = .none
         textField.textContentType = contentType
         textField.isSecureTextEntry = contentType == .password
         textField.keyboardType = keyboardType
         textField.layer.borderWidth = 1
-        textField.layer.borderColor = UIColor.lightGray.cgColor
+        textField.layer.borderColor = baseInputColor
         textField.layer.cornerRadius = 4
         textField.heightAnchor.constraint(equalToConstant: 40).isActive = true
         textField.setLeftPaddingPoints(10)
@@ -122,7 +139,7 @@ class AuthViewController: UIViewController {
         return textField
     }
     
-    // MARK: - Set constraints
+    // MARK: - Setup constraints
     private func setupConstraints() {
         view.backgroundColor = .white
         scrollView.frame = view.frame
@@ -144,6 +161,7 @@ class AuthViewController: UIViewController {
         generalStackView.translatesAutoresizingMaskIntoConstraints = false
         
         view.addSubview(scrollView)
+        view.addSubview(activityIndicator)
         scrollView.addSubview(generalStackView)
         
         NSLayoutConstraint.activate([
@@ -158,7 +176,85 @@ class AuthViewController: UIViewController {
             scrollView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor)
         ])
+        
+        NSLayoutConstraint.activate([
+            activityIndicator.centerYAnchor.constraint(equalTo: loginButton.centerYAnchor),
+            activityIndicator.centerXAnchor.constraint(equalTo: loginButton.centerXAnchor)
+        ])
     }
+    
+    // MARK: - button actions
+    @objc func loginAction(selector: UIButton) {
+        if validate() {
+            guard let portal = portalInput.text, let email = emailInput.text, let password = passwordInput.text else {
+                showErrorAlert(withMessage: NSLocalizedString("Some fields are empty", comment: ""))
+                return
+            }
+            startLoadingAnimation()
+            DispatchQueue.global(qos: .userInitiated).async {
+                self.viewModel.login(portal: portal, email: email, password: password) { (success, errorMessage) in
+                    
+                    DispatchQueue.main.async {
+                        self.stopLoadingAnimation()
+                        guard success == true else {
+                            self.showErrorAlert(withMessage: errorMessage ?? NSLocalizedString("Somthig wrong", comment: ""))
+                            return
+                        }
+                        self.view.window?.rootViewController = self.succesAuthViewController
+                    }
+                }
+            }
+        }
+    }
+    
+    // MARK: - Validate text fields
+    func validate() -> Bool {
+        let validatorProviders: [(UITextField, ValidatorType)] = [
+            (portalInput, .url),
+            (emailInput, .email),
+            (passwordInput, .requiredField(field: passwordInput.placeholder ?? "Password"))
+        ]
+        
+        for (input, validationType) in validatorProviders {
+            do {
+                input.layer.borderColor = baseInputColor
+                let _ = try input.validatedText(validationType: validationType)
+            } catch (let error) {
+                input.layer.borderColor = errorInputColor
+                if let validateError = error as? ValidationError {
+                    showErrorAlert(withMessage: validateError.message)
+                }
+                return false
+            }
+        }
+        return true
+    }
+    
+    // MARK: - Alert
+    func showErrorAlert(withMessage message: String) {
+        let alertController = UIAlertController(
+            title: NSLocalizedString("Error", comment: ""),
+            message: message,
+            preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(
+                                    title: NSLocalizedString("OK", comment: "Default action"),
+                                    style: .default))
+        self.present(alertController, animated: true, completion: nil)
+    }
+    
+    // MARK: - Loading animation
+    private func startLoadingAnimation() {
+        loginButton.alpha = 0.5
+        loginButton.isEnabled = false
+        activityIndicator.startAnimating()
+    }
+    
+    private func stopLoadingAnimation() {
+        loginButton.alpha = 1
+        loginButton.isEnabled = true
+        activityIndicator.stopAnimating()
+    }
+    
 }
 
 // MARK: - SwiftUI for preview
@@ -172,7 +268,16 @@ struct AuthViewControllerProvider: PreviewProvider {
     struct ContainerView: UIViewControllerRepresentable {
         let viewController: AuthViewController
         init() {
-            self.viewController = AuthViewController()
+            let portalAdressStorage = PortalAddressStorageUserDafaults()
+            let tokenStorage = TokenStorageUserDefaults()
+            let requestFactory = RequestFactory(portalAdressStorage: portalAdressStorage, tokenStorage: tokenStorage)
+            
+            let viewController = AuthViewController(viewModel: AuthViewModel(
+                                                        portalAddressStorage: portalAdressStorage,
+                                                        tokenStorage: tokenStorage,
+                                                        requestFactory: requestFactory,
+                                                        errorParser: ErrorParsersChain(errorParsers: [ErrorParserState<BaseErrorResponse>(), ErrorParserState()])), succesAuthViewController: UIViewController());
+            self.viewController = viewController
         }
         
         func makeUIViewController(context: UIViewControllerRepresentableContext<AuthViewControllerProvider.ContainerView>) -> AuthViewController {

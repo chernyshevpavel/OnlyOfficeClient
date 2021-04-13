@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Swinject
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -15,9 +16,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(frame: windowScene.coordinateSpace.bounds)
         window?.windowScene = windowScene
-        let viewController = AuthViewController();
         
-        window?.rootViewController = viewController
+        let container = Container()
+        let configurator = ContainerConfigurator()
+        configurator.configure(container)
+        
+        window?.rootViewController = container.resolve(AuthViewController.self)
         window?.makeKeyAndVisible()
     }
 
