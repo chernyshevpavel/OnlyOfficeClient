@@ -32,6 +32,7 @@ class DocumentsViewController: UIViewController {
     
     // MARK: - Setup constraints
     private func setupConstraints() {
+        view.backgroundColor = .white
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.tableFooterView = UIView()
         view.addSubview(tableView)

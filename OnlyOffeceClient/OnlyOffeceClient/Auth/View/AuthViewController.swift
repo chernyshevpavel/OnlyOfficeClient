@@ -11,7 +11,7 @@ import Combine
 class AuthViewController: UIViewController {
     
     let viewModel: AuthViewModelType
-    let succesAuthViewController: UIViewController
+    var succesAuthViewController: UIViewController?
     
     // MARK: - View elements
     private lazy var welocomeLabel = labelBuilder(text: "Welcom back")
@@ -22,7 +22,7 @@ class AuthViewController: UIViewController {
     }()
     
     private lazy var portalInputLabel = labelBuilder(text: "Portal")
-    private lazy var portalInput = inputBuilder(placeholder: "personal.onlyoffice.com", contentType: .URL, keyboardType: .URL)
+    private lazy var portalInput = inputBuilder(placeholder: "https://personal.onlyoffice.com", contentType: .URL, keyboardType: .URL)
     
     private lazy var emailInputLabel = labelBuilder(text: "Email")
     private lazy var emailInput = inputBuilder(placeholder: "user@email.com", contentType: .emailAddress, keyboardType: .emailAddress)
@@ -49,8 +49,8 @@ class AuthViewController: UIViewController {
         return activityIndicator
     }()
     
-    private let scrollView = UIScrollView()
-    private let generalStackView = UIStackView()
+    private lazy var scrollView = UIScrollView()
+    private lazy var generalStackView = UIStackView()
     
     private let baseInputColor = UIColor.lightGray.cgColor
     private let errorInputColor = UIColor.systemRed.cgColor
@@ -63,13 +63,12 @@ class AuthViewController: UIViewController {
     // MARK: - init
     init(
         viewModel: AuthViewModelType,
-        succesAuthViewController: UIViewController,
+        succesAuthViewController: UIViewController? = nil,
         leftMargin: CGFloat = 20,
         rightMargin: CGFloat = 20,
         groupStacksSpacing: CGFloat = 40
     ) {
         self.viewModel = viewModel
-        self.succesAuthViewController = succesAuthViewController
         self.leftMargin = leftMargin
         self.rightMargin = rightMargin
         self.groupStacksSpacing = groupStacksSpacing
@@ -270,12 +269,9 @@ struct AuthViewControllerProvider: PreviewProvider {
         init() {
             let portalAdressStorage = PortalAddressStorageUserDafaults()
             let tokenStorage = TokenStorageUserDefaults()
-            let requestFactory = RequestFactory(portalAdressStorage: portalAdressStorage, tokenStorage: tokenStorage)
-            
             let viewController = AuthViewController(viewModel: AuthViewModel(
                                                         portalAddressStorage: portalAdressStorage,
                                                         tokenStorage: tokenStorage,
-                                                        requestFactory: requestFactory,
                                                         errorParser: ErrorParsersChain(errorParsers: [ErrorParserState<BaseErrorResponse>(), ErrorParserState()])), succesAuthViewController: UIViewController());
             self.viewController = viewController
         }

@@ -11,17 +11,54 @@ import Swinject
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
+    var container: Container?
+    var configurator: ContainerConfigurator?
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(frame: windowScene.coordinateSpace.bounds)
         window?.windowScene = windowScene
         
-        let container = Container()
-        let configurator = ContainerConfigurator()
+        container = Container()
+        guard let container = container else {
+            fatalError("unimpossible error")
+        }
+        
+        configurator = ContainerConfigurator()
+        guard let configurator = configurator else {
+            fatalError("unimpossible error")
+        }
+        
         configurator.configure(container)
         
         window?.rootViewController = container.resolve(AuthViewController.self)
+        
+        
+//        let documents = DocumentsViewController()
+//        documents.title = "My Documents"
+//        let myDocuments = UINavigationController(rootViewController: documents)
+//        //myDocuments.title = "My"
+//        myDocuments.tabBarItem = UITabBarItem(title: "My documents", image: UIImage(systemName: "folder.badge.person.crop"), tag: 0)
+//        myDocuments.tabBarItem.selectedImage = UIImage(systemName: "folder.badge.person.crop.fill")
+//
+//        let commonDocuments = UINavigationController(rootViewController: DocumentsViewController())
+//        commonDocuments.tabBarItem = UITabBarItem(title: "Common documents", image: UIImage(systemName: "folder.badge.gear"), tag: 1)
+//        commonDocuments.tabBarItem.selectedImage = UIImage(systemName: "folder.fill.badge.gear")
+//
+//        let profileViewController = UINavigationController(rootViewController: container.resolve(ProfileViewController.self)!)
+//        let personalTabbarItem = UITabBarItem(title: "Common documents", image: UIImage(systemName: "person"), tag: 2)
+//        personalTabbarItem.selectedImage = UIImage(systemName: "person.fill")
+//        profileViewController.tabBarItem = personalTabbarItem
+//
+//        let mainTabbarController = UITabBarController()
+//        mainTabbarController.setViewControllers([
+//            myDocuments,
+//            commonDocuments,
+//            profileViewController
+//        ], animated: false)
+        
+        //window?.rootViewController =  container.resolve(MainTabbarController.self)!
+       // window?.rootViewController =  container.resolve(MainTabbarController.self)!
         window?.makeKeyAndVisible()
     }
 

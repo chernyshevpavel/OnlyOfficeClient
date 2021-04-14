@@ -121,4 +121,14 @@ class AuthorizationTest: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
+    
+    func testAuthHelper() throws {
+        let authHelper = AuthHelper()
+        let reuquestFactory = authHelper.auth()
+        guard let token = reuquestFactory.commonSession.sessionConfiguration.headers.value(for: "Authorization") else {
+            XCTFail()
+            return
+        }
+        XCTAssertFalse(token.isEmpty)
+    }
 }

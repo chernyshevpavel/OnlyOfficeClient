@@ -28,7 +28,7 @@ class AuthRequestFactory: AbstractRequestFactory {
 }
 
 extension AuthRequestFactory: AuthRequestFactoryProtocol {
-    func getToken(email userName: String, password: String, completionHandler: @escaping (AFDataResponse<AuthenticationResponse>) -> Void) {
+    func getToken(email userName: String, password: String, completionHandler: @escaping (AFDataResponse<BaseResponse<TokenResponse>>) -> Void) {
         let requestModel = AuthRequestRouter(baseUrl: baseUrl, userName: userName, password: password)
         self.request(request: requestModel, completionHandler: completionHandler)
     }

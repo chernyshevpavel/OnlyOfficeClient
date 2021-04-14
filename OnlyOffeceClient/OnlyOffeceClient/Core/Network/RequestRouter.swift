@@ -11,7 +11,7 @@ import Foundation
 import Alamofire
 
 enum RequestRouterEncoding {
-    case url, json
+    case url, json, withoutEncoding
 }
 
 protocol RequestRouter: URLRequestConvertible {
@@ -25,7 +25,10 @@ protocol RequestRouter: URLRequestConvertible {
 
 extension RequestRouter {
     var fullUrl: URL {
-        baseUrl.appendingPathComponent(path)
+        if !path.isEmpty {
+            return baseUrl.appendingPathComponent(path)
+        }
+        return baseUrl
     }
 
     var encoding: RequestRouterEncoding {
@@ -41,6 +44,8 @@ extension RequestRouter {
             return try URLEncoding.default.encode(urlRequest, with: parameters)
         case .json:
             return try JSONEncoding.default.encode(urlRequest, with: parameters)
+        case .withoutEncoding:
+            return urlRequest
         }
 
     }

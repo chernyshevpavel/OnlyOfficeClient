@@ -13,12 +13,12 @@ class AuthViewModel: AuthViewModelType {
     let portalAddressStorage: PortalAdressStorage
     let tokenStorage: TokenStorage
     let errorParser: AbstractErrorParser
-    let requestFactory: RequestFactory
     
-    init(portalAddressStorage: PortalAdressStorage, tokenStorage: TokenStorage, requestFactory: RequestFactory, errorParser: AbstractErrorParser) {
+    private var requestFactory: RequestFactory?
+    
+    init(portalAddressStorage: PortalAdressStorage, tokenStorage: TokenStorage, errorParser: AbstractErrorParser) {
         self.portalAddressStorage = portalAddressStorage
         self.tokenStorage = tokenStorage
-        self.requestFactory = requestFactory
         self.errorParser = errorParser
     }
     
@@ -28,11 +28,12 @@ class AuthViewModel: AuthViewModelType {
             return
         }
         portalAddressStorage.save(portalAddress: portalUrl)
+        let requestFactory = RequestFactory(portalAdressStorage: portalAddressStorage, tokenStorage: tokenStorage)
+        self.requestFactory = requestFactory
         let authFactory = requestFactory.makeAuthRequestFactory(errorParser: self.errorParser)
         authFactory.getToken(email: email, password: password) { response in
             switch response.result {
             case .success(let tokenResponse):
-                // MARK: - TODO save token and portal
                 guard let expiresTimestamp = self.convertDate(tokenResponse.response.expires) else {
                     complition(false, "\(NSLocalizedString("Couldn't cast expires to timestamp", comment: "")): \(tokenResponse.response.expires)")
                     return
