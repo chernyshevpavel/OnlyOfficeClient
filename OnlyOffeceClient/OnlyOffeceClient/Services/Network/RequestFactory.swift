@@ -47,6 +47,10 @@ class RequestFactory {
         PeopleRequestFactory(errorParser: errorParser, sessionManager: commonSession, queue: sessionQueue, baseUrl: baseUrl)
     }
     
+    func makeFilesRequestFactory(errorParser: AbstractErrorParser) -> FilesRequestFactoryProtocol {
+        FilesRequestFactory(errorParser: errorParser, sessionManager: commonSession, queue: sessionQueue, baseUrl: baseUrl)
+    }
+    
     func makeDataRequestFactory(errorParser: AbstractErrorParser) -> DataRequestFactoryProtocol {
         guard let portalAdress = portalAdressStorage.get() else {
             fatalError("Portal addres is missing")

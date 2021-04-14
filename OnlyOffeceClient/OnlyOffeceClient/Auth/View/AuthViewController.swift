@@ -72,7 +72,7 @@ class AuthViewController: UIViewController {
         self.leftMargin = leftMargin
         self.rightMargin = rightMargin
         self.groupStacksSpacing = groupStacksSpacing
-        
+
         super.init(nibName: nil, bundle: nil)
     }
     

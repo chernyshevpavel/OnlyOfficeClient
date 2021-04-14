@@ -16,4 +16,5 @@ struct DocumentCellModel {
     var name: String
     var createDate: String
     var type: DocumentType
+    var fileExt: String?
 }

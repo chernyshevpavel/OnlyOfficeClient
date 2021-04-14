@@ -81,16 +81,22 @@ class ContainerConfigurator {
     }
     
     private func myDocumentsViewController(_ container: Container) {
-        container.register(MyDocumentsViewController.self, name: "my") { _ in
-            let viewController = DocumentsViewController()
+        container.register(MyDocumentsViewController.self, name: "my") { r in
+            let viewController = DocumentsViewController(viewModel: DocumentsViewModel(documentsType: .my,
+                                                                                       requestFactory: r.resolve(RequestFactory.self)!,
+                                                                                       errorParser: r.resolve(AbstractErrorParser.self)!,
+                                                                                       logger: r.resolve(Logger.self)!))
             viewController.title = NSLocalizedString("My Documents", comment: "")
             return viewController
         }
     }
     
     private func commonDocumentsViewController(_ container: Container) {
-        container.register(CommonDocumentsViewController.self, name: "common") { _ in
-            let viewController = DocumentsViewController()
+        container.register(CommonDocumentsViewController.self, name: "common") { r in
+            let viewController = DocumentsViewController(viewModel: DocumentsViewModel(documentsType: .common,
+                                                                                       requestFactory: r.resolve(RequestFactory.self)!,
+                                                                                       errorParser: r.resolve(AbstractErrorParser.self)!,
+                                                                                       logger: r.resolve(Logger.self)!))
             viewController.title = NSLocalizedString("Common Documents", comment: "")
             return viewController
         }

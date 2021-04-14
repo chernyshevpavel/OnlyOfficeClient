@@ -30,7 +30,19 @@ class DocumentCellViewModel: DocumentCellViewModelType {
         case .Document:
             accessoryType = .none
             image = UIImage(systemName: "doc.text.fill")
-            // MARK: TODO image color depends on document exe
+            guard let ext = model.fileExt else {
+                return
+            }
+            switch ext {
+            case ".docx", ".doc":
+                imageColor = .systemBlue
+            case ".pptx":
+                imageColor = .systemOrange
+            case ".xlsx", ".csv", "xls":
+                imageColor = .systemGreen
+            default:
+                imageColor = .systemFill
+            }
         }
         
     }

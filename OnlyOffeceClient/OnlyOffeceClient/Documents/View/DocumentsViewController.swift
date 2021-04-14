@@ -6,14 +6,24 @@
 //
 
 import UIKit
+import Combine
 
 class DocumentsViewController: UIViewController {
     
+    private let viewModel: DocumentsViewModelType
+    private var currentlyLoadingSubscription: AnyCancellable?
+    
     let reuseIdentifier = "document"
     private let tableView = UITableView()
+    private lazy var loadingIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView()
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        return indicator
+    }()
     
     // MARK: - init
-    init() {
+    init(viewModel: DocumentsViewModelType) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -28,6 +38,18 @@ class DocumentsViewController: UIViewController {
         tableView.dataSource = self
         tableView.delegate = self
         setupConstraints()
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.viewModel.load()
+        }
+        self.currentlyLoadingSubscription = viewModel.currentlyLoadingPublisher.sink(receiveValue: { [weak self] currentlyLoading in
+            guard let self = self else { return }
+            if currentlyLoading {
+                self.startLoadingAnimation()
+            } else {
+                self.tableView.reloadData()
+                self.stopLoadingAnimation()
+            }
+        })
     }
     
     // MARK: - Setup constraints
@@ -36,6 +58,7 @@ class DocumentsViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.tableFooterView = UIView()
         view.addSubview(tableView)
+        view.addSubview(loadingIndicator)
         tableView.register(DocumentTableViewCell.self, forCellReuseIdentifier: reuseIdentifier)
         
         NSLayoutConstraint.activate([
@@ -43,6 +66,11 @@ class DocumentsViewController: UIViewController {
             tableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        ])
+        
+        NSLayoutConstraint.activate([
+            loadingIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            loadingIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
     }
     
@@ -58,17 +86,30 @@ class DocumentsViewController: UIViewController {
             navigationController.navigationBar.prefersLargeTitles = true
         }
     }
+    
+    // MARK: - loading animation
+    private func startLoadingAnimation() {
+        loadingIndicator.startAnimating()
+        tableView.alpha = 0.4
+    }
+    
+    private func stopLoadingAnimation() {
+        loadingIndicator.stopAnimating()
+        tableView.alpha = 1
+    }
 }
 
 // MARK: - Table view data source
 extension DocumentsViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        0
+        viewModel.numberOfRows()
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as? DocumentCellViewType else { fatalError() }
+        let cellViewModel = viewModel.cellViewModel(forIndexPath: indexPath)
+        cell.viewModel = cellViewModel
         return cell
     }
 }
@@ -92,7 +133,11 @@ struct DocumentsViewControllerProvider: PreviewProvider {
     struct ContainerView: UIViewControllerRepresentable {
         let viewController: DocumentsViewController
         init() {
-            self.viewController = DocumentsViewController()
+            self.viewController = DocumentsViewController(viewModel: DocumentsViewModel(
+                                                            documentsType: .my,
+                                                            requestFactory: RequestFactory(portalAdressStorage: PortalAddressStorageUserDafaults(), tokenStorage: TokenStorageUserDefaults()),
+                                                            errorParser: ErrorParser(),
+                                                            logger: NothingLogger()))
         }
         
         func makeUIViewController(context: UIViewControllerRepresentableContext<DocumentsViewControllerProvider.ContainerView>) -> DocumentsViewController {
