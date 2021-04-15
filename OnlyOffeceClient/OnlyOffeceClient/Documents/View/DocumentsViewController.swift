@@ -9,7 +9,7 @@ import UIKit
 import Combine
 
 class DocumentsViewController: UIViewController {
-    
+    private let documentInteractionController = UIDocumentInteractionController()
     private let viewModel: DocumentsViewModelType
     private var currentlyLoadingSubscription: AnyCancellable?
     
@@ -21,9 +21,11 @@ class DocumentsViewController: UIViewController {
         return indicator
     }()
     
+    var requestFactory: RequestFactory
     // MARK: - init
-    init(viewModel: DocumentsViewModelType) {
+    init(viewModel: DocumentsViewModelType, requestFactory: RequestFactory) {
         self.viewModel = viewModel
+        self.requestFactory = requestFactory
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -34,6 +36,7 @@ class DocumentsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        documentInteractionController.delegate = self
         configurateNavigationBar()
         tableView.dataSource = self
         tableView.delegate = self
@@ -87,6 +90,18 @@ class DocumentsViewController: UIViewController {
         }
     }
     
+    // MARK: - Alert
+    func showErrorAlert(withMessage message: String) {
+        let alertController = UIAlertController(
+            title: "Error".localized(),
+            message: message,
+            preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(
+                                    title: "OK".localized(),
+                                    style: .default))
+        self.present(alertController, animated: true, completion: nil)
+    }
+    
     // MARK: - loading animation
     private func startLoadingAnimation() {
         loadingIndicator.startAnimating()
@@ -122,14 +137,61 @@ extension DocumentsViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         viewModel.selectedRow(forIdexPath: indexPath)
-        guard let documentsViewModel = viewModel.viewModelForSelectedRow() else {
+        
+        guard openFolder(indexPath: indexPath) == false else {
             return
         }
-        let viewController = DocumentsViewController(viewModel: documentsViewModel)
+        
+        onpenDocument()
+    }
+    
+    private func openFolder(indexPath: IndexPath) -> Bool {
+        guard let documentsViewModel = viewModel.viewModelForSelectedRow() else {
+            return false
+        }
+        let viewController = DocumentsViewController(viewModel: documentsViewModel, requestFactory: requestFactory)
         if let cell = viewModel.cellViewModel(forIndexPath: indexPath) {
             viewController.title = cell.title
         }
-        self.navigationController?.pushViewController(viewController, animated: true)
+        self.navigationController?.pushViewController(viewController, animated: false)
+        return true
+    }
+    
+    private func onpenDocument() {
+        viewModel.storeDocumentForSelectedRow { (url, errorMessage) in
+            guard let url = url else {
+                if let errorMessage = errorMessage {
+                    DispatchQueue.main.async {
+                        self.showErrorAlert(withMessage: errorMessage)
+                    }
+                }
+                return
+            }
+            DispatchQueue.main.async {
+                self.share(url: url)
+            }
+        }
+    }
+}
+
+// MARK: - UIDocumentInteractionControllerDelegate
+extension DocumentsViewController: UIDocumentInteractionControllerDelegate {
+    /// If presenting atop a navigation stack, provide the navigation controller in order to animate in a manner consistent with the rest of the platform
+    func documentInteractionControllerViewControllerForPreview(_ controller: UIDocumentInteractionController) -> UIViewController {
+        guard let navVC = self.navigationController else {
+            return self
+        }
+        return navVC
+    }
+}
+
+extension DocumentsViewController {
+    /// This function will set all the required properties, and then provide a preview for the document
+    func share(url: URL) {
+        documentInteractionController.url = url
+        documentInteractionController.uti = url.typeIdentifier ?? "public.data, public.content"
+        documentInteractionController.name = url.localizedName ?? url.lastPathComponent
+        documentInteractionController.presentPreview(animated: true)
     }
 }
 
@@ -148,7 +210,8 @@ struct DocumentsViewControllerProvider: PreviewProvider {
                                                             documentsType: .my,
                                                             requestFactory: RequestFactory(portalAdressStorage: PortalAddressStorageUserDafaults(), tokenStorage: TokenStorageUserDefaults()),
                                                             errorParser: ErrorParser(),
-                                                            logger: NothingLogger()))
+                                                            logger: NothingLogger()),
+                                                          requestFactory: RequestFactory(portalAdressStorage: PortalAddressStorageUserDafaults(), tokenStorage: TokenStorageUserDefaults()))
         }
         
         func makeUIViewController(context: UIViewControllerRepresentableContext<DocumentsViewControllerProvider.ContainerView>) -> DocumentsViewController {

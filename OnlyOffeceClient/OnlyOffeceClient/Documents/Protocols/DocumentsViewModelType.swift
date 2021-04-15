@@ -7,6 +7,8 @@
 
 import Foundation
 
+typealias Filename = String
+
 protocol DocumentsViewModelType {
     var documentsType: DocumentsType { get }
     var folderId: Int { get }
@@ -17,5 +19,6 @@ protocol DocumentsViewModelType {
     func numberOfRows() -> Int
     func cellViewModel(forIndexPath indexPath: IndexPath) -> DocumentCellViewModelType?
     func viewModelForSelectedRow() -> DocumentsViewModelType?
+    func storeDocumentForSelectedRow(competion: @escaping (URL?, ErrorMessage?) -> Void)
     func selectedRow(forIdexPath indexPath: IndexPath)
 }

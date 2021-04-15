@@ -60,6 +60,7 @@ extension DocumentsViewModel: DocumentsViewModelType {
                     documentsCellModels.append(DocumentCellModel(
                                                 id: file.id,
                                                 name: file.title,
+                                                link: file.viewURL,
                                                 createDate: dateFormater.string(from: file.created),
                                                 type: .document,
                                                 fileExt: file.fileExst))
@@ -91,10 +92,9 @@ extension DocumentsViewModel: DocumentsViewModelType {
     }
     
     func viewModelForSelectedRow() -> DocumentsViewModelType? {
-        guard let selectedRow = selectedRow, selectedRow.row < documentsCellModels.count else {
+        guard let cellModel = getCellModelBySelectedRow() else {
             return nil
         }
-        let cellModel = documentsCellModels[selectedRow.row]
         guard cellModel.type == .folder else {
             return nil
         }
@@ -104,8 +104,63 @@ extension DocumentsViewModel: DocumentsViewModelType {
                                   logger: logger,
                                   rootFolderId: cellModel.id)
     }
+
+    func storeDocumentForSelectedRow(competion: @escaping (URL?, ErrorMessage?) -> Void) {
+        guard currentlyLoading == false else {
+            competion(nil, nil)
+            return
+        }
+        guard let cellModel = getCellModelBySelectedRow() else {
+            competion(nil, "Couldn't find selected row".localized())
+            return
+        }
+        guard cellModel.type == .document else {
+            competion(nil, nil)
+            return
+        }
+        guard let url = URL(string: cellModel.link ?? "") else {
+            competion(nil, "Couldn't find file url".localized())
+            return
+        }
+        DispatchQueue.main.async {
+            self.currentlyLoading = true
+        }
+        
+        requestFactory.makeDataRequestFactory(errorParser: ErrorParser()).get(url: url) { (afResoponse) in
+            switch afResoponse.result {
+            case .success(let data):
+                guard let data = data else {
+                    competion(nil, "Couldn't get file data".localized())
+                    return
+                }
+                let tmpURL = FileManager.default.temporaryDirectory
+                    .appendingPathComponent(cellModel.name)
+                do {
+                    try data.write(to: tmpURL)
+                    competion(tmpURL, nil)
+                } catch {
+                    competion(nil, error.localizedDescription)
+                }
+                DispatchQueue.main.async {
+                    self.currentlyLoading = false
+                }
+            case .failure(let error):
+                competion(nil, error.localizedDescription)
+                DispatchQueue.main.async {
+                    self.currentlyLoading = false
+                }
+            }
+        }
+    }
     
     func selectedRow(forIdexPath indexPath: IndexPath) {
         self.selectedRow = indexPath
+    }
+    
+    private func getCellModelBySelectedRow() -> DocumentCellModel? {
+        guard let selectedRow = selectedRow, selectedRow.row < documentsCellModels.count else {
+            return nil
+        }
+        return documentsCellModels[selectedRow.row]
     }
 }

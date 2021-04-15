@@ -92,7 +92,8 @@ class ContainerConfigurator {
             let viewController = DocumentsViewController(viewModel: DocumentsViewModel(documentsType: .my,
                                                                                        requestFactory: r.resolve(RequestFactory.self)!,
                                                                                        errorParser: r.resolve(AbstractErrorParser.self)!,
-                                                                                       logger: r.resolve(Logger.self)!))
+                                                                                       logger: r.resolve(Logger.self)!),
+                                                         requestFactory: r.resolve(RequestFactory.self)!)
             viewController.title = NSLocalizedString("My Documents", comment: "")
             return viewController
         }
@@ -103,7 +104,8 @@ class ContainerConfigurator {
             let viewController = DocumentsViewController(viewModel: DocumentsViewModel(documentsType: .common,
                                                                                        requestFactory: r.resolve(RequestFactory.self)!,
                                                                                        errorParser: r.resolve(AbstractErrorParser.self)!,
-                                                                                       logger: r.resolve(Logger.self)!))
+                                                                                       logger: r.resolve(Logger.self)!),
+                                                         requestFactory: r.resolve(RequestFactory.self)!)
             viewController.title = NSLocalizedString("Common Documents", comment: "")
             return viewController
         }

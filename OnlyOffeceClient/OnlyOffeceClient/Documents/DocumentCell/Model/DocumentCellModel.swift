@@ -15,6 +15,7 @@ enum DocumentType {
 struct DocumentCellModel {
     var id: Int
     var name: String
+    var link: String?
     var createDate: String
     var type: DocumentType
     var fileExt: String?
