@@ -10,7 +10,7 @@ import UIKit
 protocol DocumentCellViewModelType {
     var image: UIImage? { get }
     var imageColor: UIColor { get }
-    var name: String { get }
+    var title: String { get }
     var date: String { get }
     var accessoryType: UITableViewCell.AccessoryType { get }
 }

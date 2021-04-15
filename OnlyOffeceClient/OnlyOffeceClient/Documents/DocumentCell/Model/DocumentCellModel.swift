@@ -9,10 +9,11 @@ import Foundation
 
 enum DocumentType {
     case folder
-    case focument
+    case document
 }
 
 struct DocumentCellModel {
+    var id: Int
     var name: String
     var createDate: String
     var type: DocumentType

@@ -21,7 +21,11 @@ class CustomDecodableSerializer<T: Decodable>: DataResponseSerializerProtocol {
         }
         do {
             let data = try DataResponseSerializer().serialize(request: request, response: response, data: data, error: error)
-            let value = try JSONDecoder().decode(T.self, from: data)
+            let decoder = JSONDecoder()
+            let formater = DateFormatter()
+            formater.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSZ"
+            decoder.dateDecodingStrategy = .formatted(formater)
+            let value = try decoder.decode(T.self, from: data)
             return value
         } catch {
             let customError = errorParser.parse(error)

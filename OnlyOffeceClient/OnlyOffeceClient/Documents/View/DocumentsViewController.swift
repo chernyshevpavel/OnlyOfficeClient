@@ -97,6 +97,7 @@ class DocumentsViewController: UIViewController {
         loadingIndicator.stopAnimating()
         tableView.alpha = 1
     }
+    
 }
 
 // MARK: - Table view data source
@@ -120,7 +121,15 @@ extension DocumentsViewController: UITableViewDataSource {
 extension DocumentsViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-
+        viewModel.selectedRow(forIdexPath: indexPath)
+        guard let documentsViewModel = viewModel.viewModelForSelectedRow() else {
+            return
+        }
+        let viewController = DocumentsViewController(viewModel: documentsViewModel)
+        if let cell = viewModel.cellViewModel(forIndexPath: indexPath) {
+            viewController.title = cell.title
+        }
+        self.navigationController?.pushViewController(viewController, animated: true)
     }
 }
 

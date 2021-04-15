@@ -16,7 +16,7 @@ class DocumentTableViewCell: UITableViewCell, DocumentCellViewType {
             self.imageView?.image = viewModel.image
             self.imageView?.tintColor = viewModel.imageColor
             self.separatorInset = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 0)
-            self.textLabel?.text = viewModel.name
+            self.textLabel?.text = viewModel.title
             self.detailTextLabel?.text = viewModel.date
             self.accessoryType = viewModel.accessoryType
         }

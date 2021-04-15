@@ -27,6 +27,4 @@ class AuthManagerByTokenStorage: AuthManager {
         // MARK: - TODO make shure the token valid and exist on portal
         return true
     }
-    
-    
 }

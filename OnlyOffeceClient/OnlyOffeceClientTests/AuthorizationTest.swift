@@ -44,6 +44,7 @@ class AuthorizationTest: XCTestCase {
                 XCTAssertEqual(getTokenResult.count, 1)
                 XCTAssertEqual(getTokenResult.statusCode, 201)
                 XCTAssertFalse(getTokenResult.response.token.isEmpty)
+                XCTAssertGreaterThan(getTokenResult.response.expires.timeIntervalSince1970, NSDate().timeIntervalSince1970)
                 expect.fulfill()
             case .failure(let error):
                 if let parsedError = error.underlyingError as? BaseErrorResponse {
@@ -52,7 +53,7 @@ class AuthorizationTest: XCTestCase {
                 XCTFail(error.localizedDescription)
             }
         }
-        waitForExpectations(timeout: 10)
+        waitForExpectations(timeout: 3)
     }
     
     func testGetTokenFailPasswordExpect() throws {

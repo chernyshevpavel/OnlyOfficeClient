@@ -21,9 +21,9 @@ struct PortalFile: Codable {
     let shared: Bool
     let rootFolderType: Int
     let updatedBy: FilesAtedBy
-    let created: String
+    let created: Date
     let createdBy: FilesAtedBy
-    let updated: String
+    let updated: Date
 
     enum CodingKeys: String, CodingKey {
         case folderID = "folderId"

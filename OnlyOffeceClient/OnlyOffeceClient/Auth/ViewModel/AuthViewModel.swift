@@ -34,10 +34,7 @@ class AuthViewModel: AuthViewModelType {
         authFactory.getToken(email: email, password: password) { response in
             switch response.result {
             case .success(let tokenResponse):
-                guard let expiresTimestamp = self.convertDate(tokenResponse.response.expires) else {
-                    complition(false, "\("Couldn't cast expires to timestamp".localized()): \(tokenResponse.response.expires)")
-                    return
-                }
+                let expiresTimestamp = tokenResponse.response.expires.timeIntervalSince1970
                 let tokenStorageModel = TokenStorageModel(token: tokenResponse.response.token, expiresIn: expiresTimestamp)
                 self.tokenStorage.save(token: tokenStorageModel)
                 complition(true, nil)
