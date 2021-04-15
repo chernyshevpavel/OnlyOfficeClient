@@ -91,7 +91,7 @@ iOSInjectionProject/
 Packages
 .build
 xcuserdata
-*.xcodeproj
+#*.xcodeproj
 DerivedData/
 .DS_Store
 db.sqlite
