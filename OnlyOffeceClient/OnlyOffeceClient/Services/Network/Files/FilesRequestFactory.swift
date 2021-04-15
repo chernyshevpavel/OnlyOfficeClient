@@ -55,7 +55,6 @@ extension FilesRequestFactory {
             case .folderId(let id):
                 self.path = "files/\(id)"
             }
-            print(path)
         }
     }
 }

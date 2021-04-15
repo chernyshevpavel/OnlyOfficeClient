@@ -31,7 +31,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         configurator.configure(container)
         
-        window?.rootViewController = container.resolve(AuthViewController.self)
+        guard let authManager = container.resolve(AuthManager.self) else {
+            fatalError("Couldn't get AuthManager")
+        }
+        
+        window?.rootViewController = authManager.isAuthorized() ? container.resolve(MainTabbarController.self) : container.resolve(AuthViewController.self)
         window?.makeKeyAndVisible()
     }
 

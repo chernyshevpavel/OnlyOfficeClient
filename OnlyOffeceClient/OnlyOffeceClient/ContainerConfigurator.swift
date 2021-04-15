@@ -22,6 +22,7 @@ class ContainerConfigurator {
         networkServicesRegister(container)
         errorParsersRegister(container)
         loggerServicesRegister(container)
+        authManagerServiceRegister(container)
         
         authViewControllerRegister(container)
         myDocumentsViewController(container)
@@ -54,6 +55,12 @@ class ContainerConfigurator {
     private func loggerServicesRegister(_ container: Container) {
         container.register(Logger.self) { _ in
             NothingLogger()
+        }
+    }
+    
+    private func authManagerServiceRegister(_ container: Container) {
+        container.register(AuthManager.self) { r in
+            AuthManagerByTokenStorage(tokenStorage: r.resolve(TokenStorage.self)!)
         }
     }
     
