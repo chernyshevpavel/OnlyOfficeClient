@@ -47,7 +47,7 @@ class ProfileViewController: UIViewController {
     private lazy var logoutButton: UIButton = {
         let btn = UIButton(type: .system)
         btn.backgroundColor = .systemRed
-        btn.setTitle(NSLocalizedString("Logout", comment: ""), for: .normal)
+        btn.setTitle("Logout".localized(), for: .normal)
         btn.setTitleColor(.white, for: .normal)
         btn.layer.cornerRadius = 4
         btn.translatesAutoresizingMaskIntoConstraints = false
@@ -182,7 +182,7 @@ class ProfileViewController: UIViewController {
     // MARK: - NavigationBar configure
     private func configurateNavigationBar() {
         if let navigationController = self.navigationController {
-            navigationController.navigationBar.topItem?.title = NSLocalizedString("Profile", comment: "")
+            navigationController.navigationBar.topItem?.title = "Profile".localized()
             navigationController.navigationBar.backgroundColor = .secondarySystemBackground
             let navBarAppearance = UINavigationBarAppearance()
                 navBarAppearance.configureWithOpaqueBackground()
@@ -239,4 +239,3 @@ struct ProfileViewControllerProvider: PreviewProvider {
         }
     }
 }
-

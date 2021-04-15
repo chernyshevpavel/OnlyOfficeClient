@@ -33,7 +33,7 @@ class AuthViewController: UIViewController {
     private lazy var loginButton: UIButton = {
         let btn = UIButton(type: .system)
         btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.setTitle(NSLocalizedString("Login now", comment: ""), for: .normal)
+        btn.setTitle("Login now".localized(), for: .normal)
         btn.setTitleColor(.white, for: .normal)
         btn.backgroundColor = .systemBlue
         btn.heightAnchor.constraint(equalToConstant: 50).isActive = true
@@ -99,7 +99,7 @@ class AuthViewController: UIViewController {
         let userInfo = sender.userInfo
         
         let keyboardSize = (userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
-        let bottomFreeSpace = (UIScreen.main.bounds.height - view.safeAreaInsets.top - generalStackView.frame.height) / 2  - 20
+        let bottomFreeSpace = (UIScreen.main.bounds.height - view.safeAreaInsets.top - generalStackView.frame.height) / 2 - 20
         
         guard let keyboardSizeUnwraped = keyboardSize, keyboardSizeUnwraped.height > bottomFreeSpace else {
             return
@@ -116,14 +116,14 @@ class AuthViewController: UIViewController {
     private func labelBuilder(text: String) -> UILabel {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = NSLocalizedString(text, comment: "")
+        label.text = text.localized()
         return label
     }
     
     private func inputBuilder(placeholder: String, contentType: UITextContentType, keyboardType: UIKeyboardType = .default) -> UITextField {
         let textField = UITextField()
         textField.translatesAutoresizingMaskIntoConstraints = true
-        textField.placeholder = NSLocalizedString(placeholder, comment: "")
+        textField.placeholder = placeholder.localized()
         textField.autocapitalizationType = .none
         textField.textContentType = contentType
         textField.isSecureTextEntry = contentType == .password
@@ -186,7 +186,7 @@ class AuthViewController: UIViewController {
     @objc func loginAction(selector: UIButton) {
         if validate() {
             guard let portal = portalInput.text, let email = emailInput.text, let password = passwordInput.text else {
-                showErrorAlert(withMessage: NSLocalizedString("Some fields are empty", comment: ""))
+                showErrorAlert(withMessage: "Some fields are empty".localized())
                 return
             }
             startLoadingAnimation()
@@ -196,7 +196,7 @@ class AuthViewController: UIViewController {
                     DispatchQueue.main.async {
                         self.stopLoadingAnimation()
                         guard success == true else {
-                            self.showErrorAlert(withMessage: errorMessage ?? NSLocalizedString("Somthig wrong", comment: ""))
+                            self.showErrorAlert(withMessage: errorMessage ?? "Somthig wrong".localized())
                             return
                         }
                         self.view.window?.rootViewController = self.succesAuthViewController
@@ -217,8 +217,8 @@ class AuthViewController: UIViewController {
         for (input, validationType) in validatorProviders {
             do {
                 input.layer.borderColor = baseInputColor
-                let _ = try input.validatedText(validationType: validationType)
-            } catch (let error) {
+                _ = try input.validatedText(validationType: validationType)
+            } catch let error {
                 input.layer.borderColor = errorInputColor
                 if let validateError = error as? ValidationError {
                     showErrorAlert(withMessage: validateError.message)
@@ -232,11 +232,11 @@ class AuthViewController: UIViewController {
     // MARK: - Alert
     func showErrorAlert(withMessage message: String) {
         let alertController = UIAlertController(
-            title: NSLocalizedString("Error", comment: ""),
+            title: "Error".localized(),
             message: message,
             preferredStyle: .alert)
         alertController.addAction(UIAlertAction(
-                                    title: NSLocalizedString("OK", comment: "Default action"),
+                                    title: "OK".localized(),
                                     style: .default))
         self.present(alertController, animated: true, completion: nil)
     }
@@ -272,7 +272,11 @@ struct AuthViewControllerProvider: PreviewProvider {
             let viewController = AuthViewController(viewModel: AuthViewModel(
                                                         portalAddressStorage: portalAdressStorage,
                                                         tokenStorage: tokenStorage,
-                                                        errorParser: ErrorParsersChain(errorParsers: [ErrorParserState<BaseErrorResponse>(), ErrorParserState()])), succesAuthViewController: UIViewController());
+                                                        errorParser: ErrorParsersChain(errorParsers: [
+                                                                                        ErrorParserState<BaseErrorResponse>(),
+                                                                                        ErrorParserState()
+                                                        ])),
+                                                    succesAuthViewController: UIViewController())
             self.viewController = viewController
         }
         

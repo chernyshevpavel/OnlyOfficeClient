@@ -84,11 +84,11 @@ class ProfileViewModel: ProfileViewModelType {
         portalAddressStorage.delete()
         tokenStorage.delete()
         guard let container = container else {
-            fatalError()
+            fatalError("Container is not available")
         }
         container.removeAll()
         guard let containerConfigurator = containerConfigurator else {
-            fatalError()
+            fatalError("Container configurator is not available")
         }
         containerConfigurator.configure(container)
         

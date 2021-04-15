@@ -16,7 +16,7 @@ struct RequiredFieldValidator: ValidatorConvertible {
     
     func validated(_ value: String) throws -> String {
         guard !value.isEmpty else {
-            throw ValidationError("\(NSLocalizedString("Required field", comment: "")) \(fieldName)")
+            throw ValidationError("\("Required field".localized()) \(fieldName)")
         }
         return value
     }

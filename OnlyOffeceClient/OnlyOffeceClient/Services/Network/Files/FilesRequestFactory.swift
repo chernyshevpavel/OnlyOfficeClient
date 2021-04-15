@@ -13,7 +13,7 @@ class FilesRequestFactory: AbstractRequestFactory {
     let sessionManager: Session
     let queue: DispatchQueue
     let baseUrl: URL
-
+    
     init(
         errorParser: AbstractErrorParser,
         sessionManager: Session,
@@ -28,11 +28,12 @@ class FilesRequestFactory: AbstractRequestFactory {
 }
 
 extension FilesRequestFactory: FilesRequestFactoryProtocol {
-    func getFiles(filesRequestType: FilesRequestType,
-                  page: Int,
-                  completionHandler: @escaping (AFDataResponse<BaseResponse<FilesResponse>>) -> Void) {
-        
-        let requestModel = FilesRequestRouter(filesRequestType: filesRequestType, page: page, baseUrl: baseUrl);
+    func getFiles(
+        filesRequestType: FilesRequestType,
+        page: Int,
+        completionHandler: @escaping (AFDataResponse<BaseResponse<FilesResponse>>) -> Void
+    ) {
+        let requestModel = FilesRequestRouter(filesRequestType: filesRequestType, page: page, baseUrl: baseUrl)
         self.request(request: requestModel, completionHandler: completionHandler)
     }
 }

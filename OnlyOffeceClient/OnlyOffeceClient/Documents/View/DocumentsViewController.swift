@@ -107,7 +107,9 @@ extension DocumentsViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as? DocumentCellViewType else { fatalError() }
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as? DocumentCellViewType else {
+            fatalError("Couldn't cast cell with id \(reuseIdentifier) to DocumentCellViewType")
+        }
         let cellViewModel = viewModel.cellViewModel(forIndexPath: indexPath)
         cell.viewModel = cellViewModel
         return cell
@@ -151,4 +153,3 @@ struct DocumentsViewControllerProvider: PreviewProvider {
         }
     }
 }
-

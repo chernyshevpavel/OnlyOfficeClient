@@ -15,15 +15,17 @@ class PeopleTest: XCTestCase {
 
     override func setUpWithError() throws {
         authHelper = AuthHelper()
+        try super.setUpWithError()
     }
 
     override func tearDownWithError() throws {
         authHelper = nil
+        try super.tearDownWithError()
     }
 
     func testPeopleSelf() throws {
         guard let authHelper = authHelper else {
-            XCTFail()
+            XCTFail("Couldn't get auth helper")
             return
         }
         let requestFactory = authHelper.auth()
@@ -35,7 +37,7 @@ class PeopleTest: XCTestCase {
             case .success(let baseResponse):
                 XCTAssertFalse(baseResponse.response.userName.isEmpty)
                 guard let avatarPath = URL(string: baseResponse.response.avatar) else {
-                    XCTFail()
+                    XCTFail("Couldn't cats \(baseResponse.response.avatar) to URL")
                     return
                 }
                 requestFactory.makeDataRequestFactory(errorParser: ErrorParser()).get(url: avatarPath) { afResponse in
@@ -45,7 +47,7 @@ class PeopleTest: XCTestCase {
                             XCTFail("image data not found")
                             return
                         }
-                        guard let _ = UIImage(data: data) else {
+                        guard UIImage(data: data) != nil else {
                             XCTFail("Couldn't get image from data")
                             return
                         }

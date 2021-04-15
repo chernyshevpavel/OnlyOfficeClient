@@ -23,11 +23,11 @@ class DocumentCellViewModel: DocumentCellViewModelType {
         name = model.name
         date = model.createDate
         switch model.type {
-        case .Folder:
+        case .folder:
             accessoryType = .disclosureIndicator
             image = UIImage(systemName: "folder.fill")?.withRenderingMode(.alwaysTemplate)
             imageColor = .systemYellow
-        case .Document:
+        case .focument:
             accessoryType = .none
             image = UIImage(systemName: "doc.text.fill")
             guard let ext = model.fileExt else {

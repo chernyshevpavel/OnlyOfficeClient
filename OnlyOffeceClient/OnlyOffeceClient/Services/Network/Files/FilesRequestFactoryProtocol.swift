@@ -19,7 +19,9 @@ enum FilesRequestType {
 }
 
 protocol FilesRequestFactoryProtocol {
-    func getFiles(filesRequestType: FilesRequestType,
-                  page: Int,
-                  completionHandler: @escaping (AFDataResponse<BaseResponse<FilesResponse>>) -> Void)
+    func getFiles(
+        filesRequestType: FilesRequestType,
+        page: Int,
+        completionHandler: @escaping (AFDataResponse<BaseResponse<FilesResponse>>) -> Void
+    )
 }

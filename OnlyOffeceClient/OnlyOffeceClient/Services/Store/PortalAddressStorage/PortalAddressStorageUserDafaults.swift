@@ -16,7 +16,6 @@ class PortalAddressStorageUserDafaults: PortalAdressStorage {
         defaults.setValue(address.absoluteString, forKey: portalAddressKey)
     }
     
-    
     func delete() {
         let defaults = UserDefaults.standard
         defaults.removeObject(forKey: portalAddressKey)

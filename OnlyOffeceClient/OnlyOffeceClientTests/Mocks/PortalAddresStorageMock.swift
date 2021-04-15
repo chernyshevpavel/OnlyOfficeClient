@@ -19,7 +19,6 @@ class PortalAddresStorageMock: PortalAdressStorage {
         self.url = url
     }
     
-    
     func save(portalAddress address: URL) {
         self.url = address
     }
@@ -29,6 +28,6 @@ class PortalAddresStorageMock: PortalAdressStorage {
     }
     
     func get() -> URL? {
-        return url
+        url
     }
 }

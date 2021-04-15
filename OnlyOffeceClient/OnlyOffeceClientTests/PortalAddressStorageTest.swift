@@ -16,7 +16,7 @@ class PortalAddressStorageTest: XCTestCase {
         storage.delete()
         XCTAssertNil(storage.get())
         guard let myUrl = URL(string: "https://mytest.com") else {
-            XCTFail()
+            XCTFail("Couldn't cast url")
             return
         }
         storage.save(portalAddress: myUrl)
@@ -26,12 +26,12 @@ class PortalAddressStorageTest: XCTestCase {
     func testFailure() throws {
         let storage = PortalAddressStorageUserDafaults()
         guard let myUrl = URL(string: "https://mytest.com") else {
-            XCTFail()
+            XCTFail("Couldn't cast url")
             return
         }
         storage.save(portalAddress: myUrl)
         guard let mySecondUrl = URL(string: "https://mytest2.com") else {
-            XCTFail()
+            XCTFail("Couldn't cast url")
             return
         }
         XCTAssertNotEqual(storage.get(), mySecondUrl)

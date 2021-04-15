@@ -35,7 +35,7 @@ class AuthViewModel: AuthViewModelType {
             switch response.result {
             case .success(let tokenResponse):
                 guard let expiresTimestamp = self.convertDate(tokenResponse.response.expires) else {
-                    complition(false, "\(NSLocalizedString("Couldn't cast expires to timestamp", comment: "")): \(tokenResponse.response.expires)")
+                    complition(false, "\("Couldn't cast expires to timestamp".localized()): \(tokenResponse.response.expires)")
                     return
                 }
                 let tokenStorageModel = TokenStorageModel(token: tokenResponse.response.token, expiresIn: expiresTimestamp)
@@ -62,5 +62,3 @@ class AuthViewModel: AuthViewModelType {
         return date.timeIntervalSince1970
     }
 }
-
-

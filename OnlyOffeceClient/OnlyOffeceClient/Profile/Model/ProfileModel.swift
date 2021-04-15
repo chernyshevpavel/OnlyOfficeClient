@@ -12,4 +12,3 @@ struct ProfileModel {
     var fullName: String = ""
     var email: String = ""
 }
-

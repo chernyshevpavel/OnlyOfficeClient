@@ -14,10 +14,12 @@ class FilesTest: XCTestCase {
 
     override func setUpWithError() throws {
         authHelper = AuthHelper()
+        try super.setUpWithError()
     }
 
     override func tearDownWithError() throws {
         authHelper = nil
+        try super.tearDownWithError()
     }
 
     func testMyFiles() throws {
@@ -30,7 +32,7 @@ class FilesTest: XCTestCase {
     
     private func filesBy(fileseRequestType requestType: FilesRequestType) {
         guard let authHelper = authHelper else {
-            XCTFail()
+            XCTFail("Couldn't get auth helper")
             return
         }
         let expect = expectation(description: "files")
@@ -45,12 +47,12 @@ class FilesTest: XCTestCase {
                 XCTAssertGreaterThan(filesResponse.files.count, 0)
                 XCTAssertGreaterThan(filesResponse.folders.count, 0)
                 guard let firstFile = filesResponse.files.first else {
-                    XCTFail()
+                    XCTFail("couldn't get a file")
                     return
                 }
                 XCTAssertFalse(firstFile.title.isEmpty)
                 guard let folderFile = filesResponse.folders.first else {
-                    XCTFail()
+                    XCTFail("couldn't get a folder")
                     return
                 }
                 XCTAssertFalse(folderFile.title.isEmpty)
@@ -76,7 +78,7 @@ class FilesTest: XCTestCase {
                 XCTAssertGreaterThan(filesResponse.count, 0)
                 XCTAssertGreaterThan(filesResponse.files.count, 0)
                 guard let firstFile = filesResponse.files.first else {
-                    XCTFail()
+                    XCTFail("couldn't get a file")
                     return
                 }
                 XCTAssertFalse(firstFile.title.isEmpty)

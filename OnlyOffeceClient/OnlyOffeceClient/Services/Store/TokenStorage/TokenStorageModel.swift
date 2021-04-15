@@ -9,5 +9,5 @@ import Foundation
 
 struct TokenStorageModel {
     var token: String
-    var expiresIn : TimeInterval
+    var expiresIn: TimeInterval
 }

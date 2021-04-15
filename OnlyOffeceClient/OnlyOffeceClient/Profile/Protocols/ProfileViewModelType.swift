@@ -11,6 +11,6 @@ protocol ProfileViewModelType {
     
     var profilePublisher: Published<ProfileModel>.Publisher { get }
     
-    func loadProfile() -> Void
+    func loadProfile()
     func logout(completion: @escaping (UIViewController?) -> Void)
 }

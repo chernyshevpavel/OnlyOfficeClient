@@ -12,6 +12,6 @@ struct StatusError: Error, ErrorDescriber {
     var description: String
     
     func getErrorDescription() -> String? {
-        return "Error code: \(statusCode) - \(description)"
+        "Error code: \(statusCode) - \(description)"
     }
 }

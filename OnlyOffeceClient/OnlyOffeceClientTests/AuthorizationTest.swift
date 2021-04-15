@@ -16,7 +16,6 @@ class AuthorizationTest: XCTestCase {
     var portalAddressStorage: PortalAdressStorage = PortalAddresStorageMock(url: "https://pavelchernyshev.onlyoffice.eu")
     var tokenStorage: TokenStorage = TokenStorageMock()
     
-    
     override func setUpWithError() throws {
         let defaults = UserDefaults.standard
         // MARK: - fill it for run tests
@@ -24,11 +23,13 @@ class AuthorizationTest: XCTestCase {
         // set your userName for tests defaults.set("", forKey: "password")
         userName = defaults.string(forKey: "userName") ?? ""
         password = defaults.string(forKey: "password") ?? ""
+        try super.setUpWithError()
     }
     
     override func tearDownWithError() throws {
         userName = ""
         password = ""
+        try super.tearDownWithError()
     }
     
     func testGetToken() throws {
@@ -53,7 +54,6 @@ class AuthorizationTest: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
-    
     
     func testGetTokenFailPasswordExpect() throws {
         let requestFactory = RequestFactory(portalAdressStorage: portalAddressStorage, tokenStorage: tokenStorage)
@@ -108,7 +108,7 @@ class AuthorizationTest: XCTestCase {
             case .success:
                 XCTFail("Expected auth error")
             case .failure(let error):
-                if let _ = error.underlyingError as? BaseErrorResponse {
+                if error.underlyingError as? BaseErrorResponse != nil {
                     XCTFail("Expected statusError")
                 } else if let parsedError = error.underlyingError as? StatusError {
                     XCTAssertEqual(parsedError.statusCode, 404)
@@ -126,7 +126,7 @@ class AuthorizationTest: XCTestCase {
         let authHelper = AuthHelper()
         let reuquestFactory = authHelper.auth()
         guard let token = reuquestFactory.commonSession.sessionConfiguration.headers.value(for: "Authorization") else {
-            XCTFail()
+            XCTFail("Couldn't get token")
             return
         }
         XCTAssertFalse(token.isEmpty)

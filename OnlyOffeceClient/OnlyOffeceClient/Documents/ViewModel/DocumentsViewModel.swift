@@ -37,7 +37,7 @@ extension DocumentsViewModel: DocumentsViewModelType {
             self.currentlyLoading = true
         }
         let filesRequestFactory = requestFactory.makeFilesRequestFactory(errorParser: errorParser)
-        let requestType: FilesRequestType =  folderId > 0 ? .folderId(folderId) : .documentsType(documentsType);
+        let requestType: FilesRequestType = folderId > 0 ? .folderId(folderId) : .documentsType(documentsType)
         filesRequestFactory.getFiles(filesRequestType: requestType, page: 1) { afResponse in
             switch afResponse.result {
             case .success(let baseResult):
@@ -47,14 +47,14 @@ extension DocumentsViewModel: DocumentsViewModelType {
                     documentsCellModels.append(DocumentCellModel(
                                                 name: folder.title,
                                                 createDate: folder.created,
-                                                type: .Folder,
+                                                type: .folder,
                                                 fileExt: nil))
                 }
                 for file in filesResponse.files {
                     documentsCellModels.append(DocumentCellModel(
                                                 name: file.title,
                                                 createDate: file.created,
-                                                type: .Document,
+                                                type: .focument,
                                                 fileExt: file.fileExst))
                 }
                 DispatchQueue.main.async {

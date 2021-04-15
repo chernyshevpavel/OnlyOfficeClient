@@ -8,6 +8,7 @@ target 'OnlyOffeceClient' do
   # Pods for OnlyOffeceClient
   pod 'Alamofire'
   pod 'Swinject'
+  pod 'SwiftLint'
 
   target 'OnlyOffeceClientTests' do
     inherit! :search_paths

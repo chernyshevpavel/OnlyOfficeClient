@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 protocol DocumentsViewModelType {
     var documentsType: DocumentsType { get }
     var folderId: Int { get }

@@ -8,8 +8,8 @@
 import Foundation
 
 enum DocumentType {
-    case Folder
-    case Document
+    case folder
+    case focument
 }
 
 struct DocumentCellModel {

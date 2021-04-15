@@ -21,6 +21,6 @@ class TokenStorageMock: TokenStorage {
     }
     
     func get() -> TokenStorageModel? {
-        return token
+        token
     }
 }

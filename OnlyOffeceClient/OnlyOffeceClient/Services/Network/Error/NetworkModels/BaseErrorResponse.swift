@@ -13,6 +13,6 @@ struct BaseErrorResponse: Codable, Error, ErrorDescriber {
     let error: BaseError
 
     func getErrorDescription() -> String? {
-        return error.message
+        error.message
     }
 }
