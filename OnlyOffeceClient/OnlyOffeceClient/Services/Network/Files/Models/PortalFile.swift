@@ -14,7 +14,8 @@ struct PortalFile: Codable {
     let viewURL: String
     let webURL: String
     let fileType: Int
-    let fileExst, comment: String
+    let fileExst: String
+    let comment: String?
     let id: Int
     let title: String
     let access: Int
